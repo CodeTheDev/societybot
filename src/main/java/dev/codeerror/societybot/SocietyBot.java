@@ -128,19 +128,15 @@ public class SocietyBot implements EventListener {
 
             System.out.println(consolePrefix + "Logged in as " + e.getJDA().getSelfUser().getAsTag());
 
-        } else if (e instanceof GuildJoinEvent) {
+        } else if (e instanceof GuildJoinEvent event) {
 
-            GuildJoinEvent event = ((GuildJoinEvent) e);
             System.out.println(consolePrefix + "Joined guild \"" + event.getGuild().getName() + "\" (" + event.getGuild().getId() + ")");
 
-        } else if (e instanceof GuildLeaveEvent) {
+        } else if (e instanceof GuildLeaveEvent event) {
 
-            GuildLeaveEvent event = ((GuildLeaveEvent) e);
             System.out.println(consolePrefix + "Left guild: \"" + event.getGuild().getName() + "\" (" + event.getGuild().getId() + ")");
 
-        } else if (e instanceof GuildMessageReceivedEvent) {
-
-            GuildMessageReceivedEvent event = ((GuildMessageReceivedEvent) e);
+        } else if (e instanceof GuildMessageReceivedEvent event) {
 
             if (event.getAuthor().isBot() || event.getMember() == null) return;
 
