@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
@@ -191,7 +193,12 @@ public class SocietyBot implements EventListener {
                 }
                 embed.appendDescription("\n");
 
-                channel.sendMessageEmbeds(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue(message -> message.editMessageComponents(
+                        ActionRow.of(
+                                Button.link("https://discord.com/api/oauth2/authorize?client_id=919757594971738142&permissions=8&scope=bot", "Invite"),
+                                Button.link("https://github.com/CodeTheDev/societybot", "View Source Code")
+                        )
+                ).queue());
 
             } else if (msg.contains(prefix + "leaveguild") && sender.getId().equals("191640313016745984")) {
 
