@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: 'adopt-openj9'
         
       - name: Build (w/ Gradle)
         run: chmod +x gradlew && ./gradlew shadowJar --stacktrace
