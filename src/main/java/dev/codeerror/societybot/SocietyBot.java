@@ -23,6 +23,7 @@ import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Scanner;
 
 public class SocietyBot implements EventListener {
@@ -213,6 +214,21 @@ public class SocietyBot implements EventListener {
 
                 targetGuild.leave().queue();
                 channel.sendMessage(":white_check_mark:  Left target guild (`" + args[1] + "`) successfully!").queue();
+
+            } else if (msg.equals(prefix + "listguilds") && sender.getId().equals("191640313016745984")) {
+
+                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
+
+                TextChannel channel = event.getChannel();
+                List<Guild> guilds = event.getJDA().getGuilds();
+
+                StringBuilder responseBuilder = new StringBuilder();
+                for (Guild guild : guilds) {
+                    responseBuilder.append("`").append(guild).append("`\n");
+                }
+                String response = new String(responseBuilder);
+
+                channel.sendMessage(response).queue();
 
             } else if (msg.equals(prefix + "join") || msg.equals(prefix + "connect")) {
 
