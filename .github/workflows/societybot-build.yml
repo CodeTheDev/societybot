@@ -1,0 +1,26 @@
+name: societybot
+
+on: [push]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v2
+        
+      - name: Set Up Java 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+        
+      - name: Build (w/ Gradle)
+        run: chmod +x gradlew && ./gradlew shadowJar --stacktrace
+      
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: societybot
+          path: build/libs/societybot.jar
