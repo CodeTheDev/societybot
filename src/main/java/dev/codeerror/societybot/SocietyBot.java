@@ -1,6 +1,5 @@
 package dev.codeerror.societybot;
 
-import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import dev.codeerror.societybot.audio.PlayerManager;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.*;
@@ -117,7 +116,6 @@ public class SocietyBot implements EventListener {
                 .setStatus(status)
                 .setActivity(Activity.of(activityType, activity, "https://twitch.tv/codeerrortv"))
                 .addEventListeners(new SocietyBot())
-                .setAudioSendFactory(new NativeAudioSendFactory())
                 .build().awaitReady();
 
     }
