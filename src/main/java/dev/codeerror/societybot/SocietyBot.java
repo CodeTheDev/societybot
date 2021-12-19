@@ -201,17 +201,20 @@ public class SocietyBot implements EventListener {
 
                 //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
 
-                TextChannel channel = event.getChannel();
                 String[] args = msg.split(" ");
-                Guild targetGuild = event.getJDA().getGuildById(args[1]);
 
-                if (targetGuild == null) {
-                    channel.sendMessage(":x:  Cannot leave target guild (`" + args[1] + "`). Bot is either not in target guild or target guild ID is invalid.").queue();
-                    return;
+                if (args.length == 2) {
+                    TextChannel channel = event.getChannel();
+                    Guild targetGuild = event.getJDA().getGuildById(args[1]);
+
+                    if (targetGuild == null) {
+                        channel.sendMessage(":x:  Cannot leave target guild `" + args[1] + "`. Bot is either not in target guild or target guild ID is invalid.").queue();
+                        return;
+                    }
+
+                    targetGuild.leave().queue();
+                    channel.sendMessage(":white_check_mark:  Left target guild  **__" + targetGuild.getName() + "__**  (`" + targetGuild.getId() + "`) successfully!").queue();
                 }
-
-                targetGuild.leave().queue();
-                channel.sendMessage(":white_check_mark:  Left target guild (`" + args[1] + "`) successfully!").queue();
 
             } else if (msg.equals(prefix + "listguilds") && sender.getId().equals("191640313016745984")) {
 
@@ -222,7 +225,7 @@ public class SocietyBot implements EventListener {
 
                 StringBuilder responseBuilder = new StringBuilder();
                 for (Guild guild : guilds) {
-                    responseBuilder.append("`").append(guild).append("`\n");
+                    responseBuilder.append("**__").append(guild.getName()).append("__**  (`").append(guild.getId()).append("`)\n");
                 }
                 String response = new String(responseBuilder);
 
@@ -255,7 +258,7 @@ public class SocietyBot implements EventListener {
                 }
 
                 audio.openAudioConnection(vc);
-                channel.sendMessageFormat(":loud_sound:  Joined voice channel **%s**!", vc.getName()).queue();
+                channel.sendMessageFormat(":loud_sound:  Joined voice channel **%s**.", vc.getName()).queue();
 
             } else if (msg.equals(prefix + "disconnect") || msg.equals(prefix + "dc") || msg.equals(prefix + "leave")) {
 
@@ -291,7 +294,7 @@ public class SocietyBot implements EventListener {
 
                 manager.getGuildMusicManager(event.getGuild()).player.destroy();
                 audio.closeAudioConnection();
-                channel.sendMessageFormat(":mute:  Disconnected from voice channel **%s**!", vc.getName()).queue();
+                channel.sendMessageFormat(":mute:  Disconnected from voice channel **%s**.", vc.getName()).queue();
 
             } else if (msg.contains(prefix + "play")) {
 
@@ -326,16 +329,19 @@ public class SocietyBot implements EventListener {
 
                 if (manager.getGuildMusicManager(event.getGuild()).player.isPaused()) {
                     manager.getGuildMusicManager(event.getGuild()).player.setPaused(false);
+                    channel.sendMessage(":arrow_forward:  Resumed paused track.").queue();
                     return;
                 }
 
                 String[] args = msg.split(" ");
 
-                if (manager.getGuildMusicManager(event.getGuild()).player.getVolume() != 100) {
-                    manager.load(channel, args[1]);
-                } else {
-                    manager.load(channel, args[1]);
-                    manager.getGuildMusicManager(event.getGuild()).player.setVolume(100);
+                if (args.length == 2) {
+                    if (manager.getGuildMusicManager(event.getGuild()).player.getVolume() != 50) {
+                        manager.load(channel, args[1]);
+                    } else {
+                        manager.load(channel, args[1]);
+                        manager.getGuildMusicManager(event.getGuild()).player.setVolume(50);
+                    }
                 }
 
             } else if (msg.equals(prefix + "pause")) {
@@ -371,7 +377,7 @@ public class SocietyBot implements EventListener {
                 }
 
                 manager.getGuildMusicManager(event.getGuild()).player.setPaused(true);
-                channel.sendMessage(":pause_button:  Paused playing track!").queue();
+                channel.sendMessage(":pause_button:  Paused playing track.").queue();
 
             } else if (msg.equals(prefix + "stop")) {
 
@@ -406,7 +412,7 @@ public class SocietyBot implements EventListener {
                 }
 
                 manager.getGuildMusicManager(event.getGuild()).player.stopTrack();
-                channel.sendMessage(":stop_button:  Stopped playing track!").queue();
+                channel.sendMessage(":stop_button:  Stopped playing track.").queue();
 
             } else if (msg.equals(prefix + "skip")) {
 
@@ -441,7 +447,7 @@ public class SocietyBot implements EventListener {
                 }
 
                 manager.getGuildMusicManager(event.getGuild()).scheduler.nextTrack();
-                channel.sendMessage(":fast_forward:  Skipped to next track!").queue();
+                channel.sendMessage(":fast_forward:  Skipped to next track in queue.").queue();
 
             } else if (msg.contains(prefix + "volume")) {
 
@@ -477,12 +483,16 @@ public class SocietyBot implements EventListener {
                     return;
                 }
 
-                int volume = Integer.parseInt(msg.split(" ")[1]);
+                String[] args = msg.split(" ");
 
-                if (volume > 100 && (!sender.hasPermission(Permission.ADMINISTRATOR) || !sender.getId().equals("191640313016745984"))) volume = 100;
+                if (args.length == 2) {
+                    int volume = Integer.parseInt(args[1]);
 
-                manager.getGuildMusicManager(event.getGuild()).player.setVolume(volume);
-                channel.sendMessageFormat(":sound:  Set volume to **%d**.", volume).queue();
+                    if (volume > 100 && (!sender.hasPermission(Permission.ADMINISTRATOR) || !sender.getId().equals("191640313016745984"))) volume = 100;
+
+                    manager.getGuildMusicManager(event.getGuild()).player.setVolume(volume);
+                    channel.sendMessageFormat(":sound:  Set volume to **%d**.", volume).queue();
+                }
 
             }
 
