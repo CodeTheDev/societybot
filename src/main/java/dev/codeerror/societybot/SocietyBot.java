@@ -142,7 +142,7 @@ public class SocietyBot implements EventListener {
             String msg = event.getMessage().getContentRaw();
             Member sender = event.getMember();
 
-            if (msg.equals(prefix + "about") || (msg.equals(prefix + "info")) && sender.getId().equals("191640313016745984")) {
+            if (msg.equals(prefix + "about") || (msg.equals(prefix + "info"))) {
 
                 TextChannel channel = event.getChannel();
                 OffsetDateTime timestamp = event.getMessage().getTimeCreated();
