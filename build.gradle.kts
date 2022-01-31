@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     java
     idea
-    id("com.github.johnrengelman.shadow") version "7.1.1" apply false
+    id("com.github.johnrengelman.shadow") version "7.1.2" apply false
 }
 
 group = "dev.codeerror"
@@ -17,9 +17,9 @@ repositories {
 }
 
 dependencies {
-    implementation("net.dv8tion:JDA:4.4.0_351")
-    implementation("com.sedmelluq:lavaplayer:1.3.77")
-    implementation("org.slf4j:slf4j-simple:1.7.32")
+    implementation("net.dv8tion:JDA:4.4.0_352")
+    implementation("com.sedmelluq:lavaplayer:1.3.78")
+    implementation("org.slf4j:slf4j-simple:1.7.33")
 }
 
 idea {
