@@ -47,7 +47,7 @@ public class PlayerManager {
             @Override
             public void trackLoaded(AudioTrack track) {
                 if (musicManager.player.getPlayingTrack() == null) {
-                    channel.sendMessageFormat(":arrow_forward:  Now Playing **%s** by **%s**", track.getInfo().title, track.getInfo().author).queue();
+                    channel.sendMessageFormat(":arrow_forward:  Now Playing **%s** by **%s**.", track.getInfo().title, track.getInfo().author).queue();
                 } else {
                     channel.sendMessageFormat(":play_pause:  Added **%s** by **%s** to the queue.", track.getInfo().title, track.getInfo().author).queue();
                 }
@@ -60,21 +60,23 @@ public class PlayerManager {
                 for (int i = 0; i < playlist.getTracks().size(); i++) {
                     track = playlist.getTracks().get(i);
                     if (musicManager.player.getPlayingTrack() == null) {
-                        channel.sendMessageFormat(":arrow_forward:  Now Playing **%s** by **%s** from playlist [**%s**]", track.getInfo().title, track.getInfo().author, playlist.getName()).queue();
+                        channel.sendMessageFormat(":arrow_forward:  Now Playing **%s** by **%s** from playlist [**%s**].", track.getInfo().title, track.getInfo().author, playlist.getName()).queue();
+                    } else {
+                        channel.sendMessageFormat(":play_pause:  Added **%s** by **%s** from playlist [**%s**] to the queue.", track.getInfo().title, track.getInfo().author, playlist.getName()).queue();
                     }
                     play(musicManager, track);
-                    channel.sendMessageFormat(":play_pause:  Added **%s** more songs to the queue.", playlist.getTracks().size() - 1).queue();
                 }
+                channel.sendMessageFormat(":play_pause:  Added **%d** more songs from playlist [**%s**] to the queue.", playlist.getTracks().size() - 1, playlist.getName()).queue();
             }
 
             @Override
             public void noMatches() {
-                channel.sendMessageFormat(":x:  Invalid URL: **%s**", url).queue();
+                channel.sendMessageFormat(":x:  Invalid URL: `%s`.", url).queue();
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                channel.sendMessageFormat(":x:  Could not load: **%s**", exception.getMessage()).queue();
+                channel.sendMessageFormat(":x:  Could not load: `%s`.", exception.getMessage()).queue();
             }
         });
     }
