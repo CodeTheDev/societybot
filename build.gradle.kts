@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation("net.dv8tion:JDA:4.4.0_352")
     implementation("com.sedmelluq:lavaplayer:1.3.78")
-    implementation("org.slf4j:slf4j-simple:1.7.33")
+    implementation("org.slf4j:slf4j-simple:1.7.35")
 }
 
 idea {
@@ -33,6 +33,6 @@ tasks.withType<ShadowJar> {
     archiveClassifier.set("")
     archiveVersion.set("")
     manifest {
-        attributes["Main-Class"] = "dev.codeerror.societybot.SocietyBot"
+        attributes("Main-Class" to "dev.codeerror.societybot.SocietyBot")
     }
 }
