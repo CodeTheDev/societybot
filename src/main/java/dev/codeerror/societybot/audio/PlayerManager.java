@@ -56,15 +56,14 @@ public class PlayerManager {
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                AudioTrack track;
+                AudioTrack firstTrack = playlist.getTracks().get(0);
+                if (musicManager.player.getPlayingTrack() == null) {
+                    channel.sendMessageFormat(":arrow_forward:  Now Playing **%s** by **%s** from playlist [**%s**].", firstTrack.getInfo().title, firstTrack.getInfo().author, playlist.getName()).queue();
+                } else {
+                    channel.sendMessageFormat(":play_pause:  Added **%s** by **%s** from playlist [**%s**] to the queue.", firstTrack.getInfo().title, firstTrack.getInfo().author, playlist.getName()).queue();
+                }
                 for (int i = 0; i < playlist.getTracks().size(); i++) {
-                    track = playlist.getTracks().get(i);
-                    if (musicManager.player.getPlayingTrack() == null) {
-                        channel.sendMessageFormat(":arrow_forward:  Now Playing **%s** by **%s** from playlist [**%s**].", track.getInfo().title, track.getInfo().author, playlist.getName()).queue();
-                    } else {
-                        channel.sendMessageFormat(":play_pause:  Added **%s** by **%s** from playlist [**%s**] to the queue.", track.getInfo().title, track.getInfo().author, playlist.getName()).queue();
-                    }
-                    play(musicManager, track);
+                    play(musicManager, playlist.getTracks().get(i));
                 }
                 channel.sendMessageFormat(":play_pause:  Added **%d** more songs from playlist [**%s**] to the queue.", playlist.getTracks().size() - 1, playlist.getName()).queue();
             }
