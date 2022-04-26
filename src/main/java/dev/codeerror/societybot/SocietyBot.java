@@ -33,7 +33,7 @@ public class SocietyBot implements EventListener {
     public static void main(String[] args) throws LoginException, InterruptedException {
 
         System.out.println("=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=");
-        System.out.println("  SocietyBot v1.0 - Console Logging Interface\n");
+        System.out.println("  SocietyBot v1.1 - Console Logging Interface\n");
         System.out.println("          Created By: CodeError#0001\n");
         System.out.println("            \"we live in a society.\"");
         System.out.println("=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=\n");
@@ -146,9 +146,6 @@ public class SocietyBot implements EventListener {
 
                 TextChannel channel = event.getChannel();
                 OffsetDateTime timestamp = event.getMessage().getTimeCreated();
-
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 EmbedBuilder embed = new EmbedBuilder();
                 User selfUser = event.getJDA().getSelfUser();
                 Member selfMember = event.getGuild().getSelfMember();
@@ -159,7 +156,7 @@ public class SocietyBot implements EventListener {
                 embed.setThumbnail(selfUser.getEffectiveAvatarUrl());
                 embed.setTitle("SocietyBot  -  About");
 
-                embed.appendDescription("**Version:**  `1.0`\n");
+                embed.appendDescription("**Version:**  `1.1`\n");
                 embed.appendDescription("**Author:**  <@191640313016745984>  (`CodeError#0001`)\n\n");
 
                 embed.appendDescription("Currently logged in as **" + selfUser.getAsTag() + "**.\n\n");
@@ -199,10 +196,7 @@ public class SocietyBot implements EventListener {
 
                 if (msg.indexOf(prefix + "leaveguild") > 0) return;
 
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 String[] args = msg.split(" ");
-
                 if (args.length == 2) {
                     TextChannel channel = event.getChannel();
                     Guild targetGuild = event.getJDA().getGuildById(args[1]);
@@ -218,8 +212,6 @@ public class SocietyBot implements EventListener {
 
             } else if (msg.equals(prefix + "listguilds") && sender.getId().equals("191640313016745984")) {
 
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 TextChannel channel = event.getChannel();
                 List<Guild> guilds = event.getJDA().getGuilds();
 
@@ -233,8 +225,6 @@ public class SocietyBot implements EventListener {
 
             } else if (msg.equals(prefix + "join") || msg.equals(prefix + "connect")) {
 
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 GuildVoiceState senderVoice = event.getMember().getVoiceState();
                 TextChannel channel = event.getChannel();
 
@@ -244,14 +234,12 @@ public class SocietyBot implements EventListener {
                 }
 
                 VoiceChannel vc = senderVoice.getChannel();
-
                 if (vc == null) {
                     channel.sendMessage(":x:  Cannot connect to voice channel. Sender is not in a voice channel.").queue();
                     return;
                 }
 
                 AudioManager audio = event.getGuild().getAudioManager();
-
                 if (audio.isConnected()) {
                     channel.sendMessageFormat(":x:  Already connected to a voice channel (**%s**).", vc.getName()).queue();
                     return;
@@ -261,8 +249,6 @@ public class SocietyBot implements EventListener {
                 channel.sendMessageFormat(":loud_sound:  Joined voice channel **%s**.", vc.getName()).queue();
 
             } else if (msg.equals(prefix + "disconnect") || msg.equals(prefix + "dc") || msg.equals(prefix + "leave")) {
-
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
 
                 PlayerManager manager = PlayerManager.getInstance();
                 GuildVoiceState senderVoice = event.getMember().getVoiceState();
@@ -274,19 +260,16 @@ public class SocietyBot implements EventListener {
                 }
 
                 VoiceChannel vc = senderVoice.getChannel();
-
                 if (vc == null) {
                     channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
                     return;
                 }
 
                 AudioManager audio = event.getGuild().getAudioManager();
-
                 if (!audio.isConnected()) {
                     channel.sendMessage(":x:  Cannot disconnect bot. Bot is already disconnected.").queue();
                     return;
                 }
-
                 if (!vc.getMembers().contains(sender)) {
                     channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
                     return;
@@ -300,8 +283,6 @@ public class SocietyBot implements EventListener {
 
                 if (msg.indexOf(prefix + "play") > 0) return;
 
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 PlayerManager manager = PlayerManager.getInstance();
                 GuildVoiceState senderVoice = event.getMember().getVoiceState();
                 TextChannel channel = event.getChannel();
@@ -312,19 +293,16 @@ public class SocietyBot implements EventListener {
                 }
 
                 VoiceChannel vc = senderVoice.getChannel();
-
                 if (vc == null) {
                     channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
                     return;
                 }
-
                 if (!vc.getMembers().contains(sender)) {
                     channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
                     return;
                 }
 
                 AudioManager audio = event.getGuild().getAudioManager();
-
                 if (!audio.isConnected()) audio.openAudioConnection(vc);
 
                 if (manager.getGuildMusicManager(event.getGuild()).player.isPaused()) {
@@ -334,7 +312,6 @@ public class SocietyBot implements EventListener {
                 }
 
                 String[] args = msg.split(" ");
-
                 if (args.length == 2) {
                     if (manager.getGuildMusicManager(event.getGuild()).player.getVolume() != 50) {
                         manager.load(channel, args[1]);
@@ -346,8 +323,6 @@ public class SocietyBot implements EventListener {
 
             } else if (msg.equals(prefix + "pause")) {
 
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 PlayerManager manager = PlayerManager.getInstance();
                 GuildVoiceState senderVoice = event.getMember().getVoiceState();
                 TextChannel channel = event.getChannel();
@@ -358,19 +333,16 @@ public class SocietyBot implements EventListener {
                 }
 
                 VoiceChannel vc = senderVoice.getChannel();
-
                 if (vc == null) {
                     channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
                     return;
                 }
 
                 AudioManager audio = event.getGuild().getAudioManager();
-
                 if (!audio.isConnected()) {
                     channel.sendMessage(":x:  Cannot pause. Bot is not connected.").queue();
                     return;
                 }
-
                 if (!vc.getMembers().contains(sender)) {
                     channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
                     return;
@@ -381,8 +353,6 @@ public class SocietyBot implements EventListener {
 
             } else if (msg.equals(prefix + "stop")) {
 
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 PlayerManager manager = PlayerManager.getInstance();
                 GuildVoiceState senderVoice = event.getMember().getVoiceState();
                 TextChannel channel = event.getChannel();
@@ -393,19 +363,16 @@ public class SocietyBot implements EventListener {
                 }
 
                 VoiceChannel vc = senderVoice.getChannel();
-
                 if (vc == null) {
                     channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
                     return;
                 }
 
                 AudioManager audio = event.getGuild().getAudioManager();
-
                 if (!audio.isConnected()) {
                     channel.sendMessage(":x:  Cannot stop. Bot is not connected.").queue();
                     return;
                 }
-
                 if (!vc.getMembers().contains(sender)) {
                     channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
                     return;
@@ -416,8 +383,6 @@ public class SocietyBot implements EventListener {
 
             } else if (msg.equals(prefix + "skip")) {
 
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 PlayerManager manager = PlayerManager.getInstance();
                 GuildVoiceState senderVoice = event.getMember().getVoiceState();
                 TextChannel channel = event.getChannel();
@@ -428,19 +393,16 @@ public class SocietyBot implements EventListener {
                 }
 
                 VoiceChannel vc = senderVoice.getChannel();
-
                 if (vc == null) {
                     channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
                     return;
                 }
 
                 AudioManager audio = event.getGuild().getAudioManager();
-
                 if (!audio.isConnected()) {
                     channel.sendMessage(":x:  Cannot skip. Bot is not connected.").queue();
                     return;
                 }
-
                 if (!vc.getMembers().contains(sender)) {
                     channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
                     return;
@@ -453,8 +415,6 @@ public class SocietyBot implements EventListener {
 
                 if (msg.indexOf(prefix + "volume") > 0) return;
 
-                //event.getMessage().delete().queueAfter(200, TimeUnit.MILLISECONDS);
-
                 PlayerManager manager = PlayerManager.getInstance();
                 GuildVoiceState senderVoice = event.getMember().getVoiceState();
                 TextChannel channel = event.getChannel();
@@ -465,31 +425,25 @@ public class SocietyBot implements EventListener {
                 }
 
                 VoiceChannel vc = senderVoice.getChannel();
-
                 if (vc == null) {
                     channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
                     return;
                 }
 
                 AudioManager audio = event.getGuild().getAudioManager();
-
                 if (!audio.isConnected()) {
                     channel.sendMessage(":x:  Cannot adjust volume. Bot is not connected.").queue();
                     return;
                 }
-
                 if (!vc.getMembers().contains(sender)) {
                     channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
                     return;
                 }
 
                 String[] args = msg.split(" ");
-
                 if (args.length == 2) {
                     int volume = Integer.parseInt(args[1]);
-
                     if (volume > 100 && (!sender.hasPermission(Permission.ADMINISTRATOR) || !sender.getId().equals("191640313016745984"))) volume = 100;
-
                     manager.getGuildMusicManager(event.getGuild()).player.setVolume(volume);
                     channel.sendMessageFormat(":sound:  Set volume to **%d**.", volume).queue();
                 }

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.codeerror"
-version = "1.0"
+version = "1.1"
 
 apply(plugin = "com.github.johnrengelman.shadow")
 
@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation("net.dv8tion:JDA:4.4.0_352")
     implementation("com.sedmelluq:lavaplayer:1.3.78")
-    implementation("org.slf4j:slf4j-simple:1.7.35")
+    implementation("org.slf4j:slf4j-simple:1.7.36")
 }
 
 idea {
