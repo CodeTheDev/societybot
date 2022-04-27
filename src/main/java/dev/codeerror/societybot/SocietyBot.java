@@ -125,6 +125,12 @@ public class SocietyBot implements EventListener {
 
         if (e instanceof ReadyEvent) {
 
+            for (Guild guild : e.getJDA().getGuilds()) {
+                if (guild.getRolesByName("DJ", false).isEmpty()) {
+                    guild.createRole().setName("DJ").setHoisted(false).setMentionable(false).complete();
+                }
+            }
+
             System.out.println(consolePrefix + "Logged in as " + e.getJDA().getSelfUser().getAsTag());
 
         } else if (e instanceof GuildJoinEvent event) {
@@ -141,312 +147,312 @@ public class SocietyBot implements EventListener {
 
             String msg = event.getMessage().getContentRaw();
             Member sender = event.getMember();
+            TextChannel channel = event.getChannel();
+            Role djRole = event.getGuild().getRolesByName("DJ", false).get(0);
 
-            if (msg.equals(prefix + "about") || (msg.equals(prefix + "info"))) {
+            if (sender.getRoles().contains(djRole) || sender.hasPermission(Permission.ADMINISTRATOR) || sender.getId().equals("191640313016745984")) {
 
-                TextChannel channel = event.getChannel();
-                OffsetDateTime timestamp = event.getMessage().getTimeCreated();
-                EmbedBuilder embed = new EmbedBuilder();
-                User selfUser = event.getJDA().getSelfUser();
-                Member selfMember = event.getGuild().getSelfMember();
+                if (msg.equals(prefix + "about") || (msg.equals(prefix + "info"))) {
 
-                embed.setColor(new Color(255, 51, 51));
-                embed.setFooter("SocietyBot");
-                embed.setTimestamp(timestamp);
-                embed.setThumbnail(selfUser.getEffectiveAvatarUrl());
-                embed.setTitle("SocietyBot  -  About");
+                    OffsetDateTime timestamp = event.getMessage().getTimeCreated();
+                    EmbedBuilder embed = new EmbedBuilder();
+                    User selfUser = event.getJDA().getSelfUser();
+                    Member selfMember = event.getGuild().getSelfMember();
 
-                embed.appendDescription("**Version:**  `1.1`\n");
-                embed.appendDescription("**Author:**  <@191640313016745984>  (`CodeError#0001`)\n\n");
+                    embed.setColor(new Color(255, 51, 51));
+                    embed.setFooter("SocietyBot");
+                    embed.setTimestamp(timestamp);
+                    embed.setThumbnail(selfUser.getEffectiveAvatarUrl());
+                    embed.setTitle("SocietyBot  -  About");
 
-                embed.appendDescription("Currently logged in as **" + selfUser.getAsTag() + "**.\n\n");
+                    embed.appendDescription("**Version:**  `1.1`\n");
+                    embed.appendDescription("**Author:**  <@191640313016745984>  (`CodeError#0001`)\n\n");
 
-                long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
-                long seconds = uptimeMillis / 1000;
-                long minutes = seconds / 60;
-                long hours = minutes / 60;
-                long days = hours / 24;
-                String uptime = days + "d " + hours % 24 + "h " + minutes % 60 + "m " + seconds % 60 + "s";
-                embed.appendDescription("**Uptime:**  `" + uptime + "`\n");
-                embed.appendDescription("**Latency:**  `" + event.getJDA().getGatewayPing() + "ms`\n\n");
+                    embed.appendDescription("Currently logged in as **" + selfUser.getAsTag() + "**.\n\n");
 
-                embed.appendDescription("**User Mention:**  <@" + selfUser.getId() + ">\n");
-                embed.appendDescription("**User ID:**  `" + selfUser.getId() + "`\n");
-                embed.appendDescription("**User Created:**  <t:" + selfUser.getTimeCreated().toEpochSecond() + ":R>\n\n");
+                    long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
+                    long seconds = uptimeMillis / 1000;
+                    long minutes = seconds / 60;
+                    long hours = minutes / 60;
+                    long days = hours / 24;
+                    String uptime = days + "d " + hours % 24 + "h " + minutes % 60 + "m " + seconds % 60 + "s";
+                    embed.appendDescription("**Uptime:**  `" + uptime + "`\n");
+                    embed.appendDescription("**Latency:**  `" + event.getJDA().getGatewayPing() + "ms`\n\n");
 
-                embed.appendDescription("**Server Join Date:**  <t:" + selfMember.getTimeJoined().toEpochSecond() + ":R>\n");
-                embed.appendDescription("**Assigned Roles:**  ");
-                if (!selfMember.getRoles().isEmpty()) {
-                    for (Role role : selfMember.getRoles()) {
-                        embed.appendDescription("<@&" + role.getId() + ">  ");
+                    embed.appendDescription("**User Mention:**  <@" + selfUser.getId() + ">\n");
+                    embed.appendDescription("**User ID:**  `" + selfUser.getId() + "`\n");
+                    embed.appendDescription("**User Created:**  <t:" + selfUser.getTimeCreated().toEpochSecond() + ":R>\n\n");
+
+                    embed.appendDescription("**Server Join Date:**  <t:" + selfMember.getTimeJoined().toEpochSecond() + ":R>\n");
+                    embed.appendDescription("**Assigned Roles:**  ");
+                    if (!selfMember.getRoles().isEmpty()) {
+                        for (Role role : selfMember.getRoles()) {
+                            embed.appendDescription("<@&" + role.getId() + ">  ");
+                        }
+                    } else {
+                        embed.appendDescription("`None`");
                     }
-                } else {
-                    embed.appendDescription("`None`");
-                }
-                embed.appendDescription("\n");
+                    embed.appendDescription("\n");
 
-                channel.sendMessageEmbeds(embed.build()).queue(message -> message.editMessageComponents(
-                        ActionRow.of(
-                                Button.link("https://discord.com/api/oauth2/authorize?client_id=919757594971738142&permissions=8&scope=bot", "Invite"),
-                                Button.link("https://github.com/CodeTheDev/societybot", "View Source Code")
-                        )
-                ).queue());
+                    channel.sendMessageEmbeds(embed.build()).queue(message -> message.editMessageComponents(
+                            ActionRow.of(
+                                    Button.link("https://discord.com/api/oauth2/authorize?client_id=919757594971738142&permissions=8&scope=bot", "Invite"),
+                                    Button.link("https://github.com/CodeTheDev/societybot", "View Source Code")
+                            )
+                    ).queue());
 
-            } else if (msg.contains(prefix + "leaveguild") && sender.getId().equals("191640313016745984")) {
+                } else if (msg.contains(prefix + "leaveguild") && sender.getId().equals("191640313016745984")) {
 
-                if (msg.indexOf(prefix + "leaveguild") > 0) return;
+                    if (msg.indexOf(prefix + "leaveguild") > 0) return;
 
-                String[] args = msg.split(" ");
-                if (args.length == 2) {
-                    TextChannel channel = event.getChannel();
-                    Guild targetGuild = event.getJDA().getGuildById(args[1]);
+                    String[] args = msg.split(" ");
+                    if (args.length == 2) {
+                        Guild targetGuild = event.getJDA().getGuildById(args[1]);
 
-                    if (targetGuild == null) {
-                        channel.sendMessage(":x:  Cannot leave target guild `" + args[1] + "`. Bot is either not in target guild or target guild ID is invalid.").queue();
+                        if (targetGuild == null) {
+                            channel.sendMessage(":x:  Cannot leave target guild `" + args[1] + "`. Bot is either not in target guild or target guild ID is invalid.").queue();
+                            return;
+                        }
+
+                        targetGuild.leave().queue();
+                        channel.sendMessage(":white_check_mark:  Left target guild  **__" + targetGuild.getName() + "__**  (`" + targetGuild.getId() + "`) successfully!").queue();
+                    }
+
+                } else if (msg.equals(prefix + "listguilds") && sender.getId().equals("191640313016745984")) {
+
+                    List<Guild> guilds = event.getJDA().getGuilds();
+
+                    StringBuilder responseBuilder = new StringBuilder();
+                    for (Guild guild : guilds) {
+                        responseBuilder.append("**__").append(guild.getName()).append("__**  (`").append(guild.getId()).append("`)\n");
+                    }
+                    String response = new String(responseBuilder);
+
+                    channel.sendMessage(response).queue();
+
+                } else if (msg.equals(prefix + "join") || msg.equals(prefix + "connect")) {
+
+                    GuildVoiceState senderVoice = event.getMember().getVoiceState();
+
+                    if (senderVoice == null) {
+                        channel.sendMessage(":x:  Cannot connect to voice channel. Sender is not in a voice channel.").queue();
                         return;
                     }
 
-                    targetGuild.leave().queue();
-                    channel.sendMessage(":white_check_mark:  Left target guild  **__" + targetGuild.getName() + "__**  (`" + targetGuild.getId() + "`) successfully!").queue();
-                }
-
-            } else if (msg.equals(prefix + "listguilds") && sender.getId().equals("191640313016745984")) {
-
-                TextChannel channel = event.getChannel();
-                List<Guild> guilds = event.getJDA().getGuilds();
-
-                StringBuilder responseBuilder = new StringBuilder();
-                for (Guild guild : guilds) {
-                    responseBuilder.append("**__").append(guild.getName()).append("__**  (`").append(guild.getId()).append("`)\n");
-                }
-                String response = new String(responseBuilder);
-
-                channel.sendMessage(response).queue();
-
-            } else if (msg.equals(prefix + "join") || msg.equals(prefix + "connect")) {
-
-                GuildVoiceState senderVoice = event.getMember().getVoiceState();
-                TextChannel channel = event.getChannel();
-
-                if (senderVoice == null) {
-                    channel.sendMessage(":x:  Cannot connect to voice channel. Sender is not in a voice channel.").queue();
-                    return;
-                }
-
-                VoiceChannel vc = senderVoice.getChannel();
-                if (vc == null) {
-                    channel.sendMessage(":x:  Cannot connect to voice channel. Sender is not in a voice channel.").queue();
-                    return;
-                }
-
-                AudioManager audio = event.getGuild().getAudioManager();
-                if (audio.isConnected()) {
-                    channel.sendMessageFormat(":x:  Already connected to a voice channel (**%s**).", vc.getName()).queue();
-                    return;
-                }
-
-                audio.openAudioConnection(vc);
-                channel.sendMessageFormat(":loud_sound:  Joined voice channel **%s**.", vc.getName()).queue();
-
-            } else if (msg.equals(prefix + "disconnect") || msg.equals(prefix + "dc") || msg.equals(prefix + "leave")) {
-
-                PlayerManager manager = PlayerManager.getInstance();
-                GuildVoiceState senderVoice = event.getMember().getVoiceState();
-                TextChannel channel = event.getChannel();
-
-                if (senderVoice == null) {
-                    channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                VoiceChannel vc = senderVoice.getChannel();
-                if (vc == null) {
-                    channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                AudioManager audio = event.getGuild().getAudioManager();
-                if (!audio.isConnected()) {
-                    channel.sendMessage(":x:  Cannot disconnect bot. Bot is already disconnected.").queue();
-                    return;
-                }
-                if (!vc.getMembers().contains(sender)) {
-                    channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                manager.getGuildMusicManager(event.getGuild()).player.destroy();
-                audio.closeAudioConnection();
-                channel.sendMessageFormat(":mute:  Disconnected from voice channel **%s**.", vc.getName()).queue();
-
-            } else if (msg.contains(prefix + "play")) {
-
-                if (msg.indexOf(prefix + "play") > 0) return;
-
-                PlayerManager manager = PlayerManager.getInstance();
-                GuildVoiceState senderVoice = event.getMember().getVoiceState();
-                TextChannel channel = event.getChannel();
-
-                if (senderVoice == null) {
-                    channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                VoiceChannel vc = senderVoice.getChannel();
-                if (vc == null) {
-                    channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
-                    return;
-                }
-                if (!vc.getMembers().contains(sender)) {
-                    channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                AudioManager audio = event.getGuild().getAudioManager();
-                if (!audio.isConnected()) audio.openAudioConnection(vc);
-
-                if (manager.getGuildMusicManager(event.getGuild()).player.isPaused()) {
-                    manager.getGuildMusicManager(event.getGuild()).player.setPaused(false);
-                    channel.sendMessage(":arrow_forward:  Resumed paused track.").queue();
-                    return;
-                }
-
-                String[] args = msg.split(" ");
-                if (args.length == 2) {
-                    if (manager.getGuildMusicManager(event.getGuild()).player.getVolume() != 50) {
-                        manager.load(channel, args[1]);
-                    } else {
-                        manager.load(channel, args[1]);
-                        manager.getGuildMusicManager(event.getGuild()).player.setVolume(50);
+                    VoiceChannel vc = senderVoice.getChannel();
+                    if (vc == null) {
+                        channel.sendMessage(":x:  Cannot connect to voice channel. Sender is not in a voice channel.").queue();
+                        return;
                     }
+
+                    AudioManager audio = event.getGuild().getAudioManager();
+                    if (audio.isConnected()) {
+                        channel.sendMessageFormat(":x:  Already connected to a voice channel (**%s**).", vc.getName()).queue();
+                        return;
+                    }
+
+                    audio.openAudioConnection(vc);
+                    channel.sendMessageFormat(":loud_sound:  Joined voice channel **%s**.", vc.getName()).queue();
+
+                } else if (msg.equals(prefix + "disconnect") || msg.equals(prefix + "dc") || msg.equals(prefix + "leave")) {
+
+                    PlayerManager manager = PlayerManager.getInstance();
+                    GuildVoiceState senderVoice = event.getMember().getVoiceState();
+
+                    if (senderVoice == null) {
+                        channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    VoiceChannel vc = senderVoice.getChannel();
+                    if (vc == null) {
+                        channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    AudioManager audio = event.getGuild().getAudioManager();
+                    if (!audio.isConnected()) {
+                        channel.sendMessage(":x:  Cannot disconnect bot. Bot is already disconnected.").queue();
+                        return;
+                    }
+                    if (!vc.getMembers().contains(sender)) {
+                        channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    manager.getGuildMusicManager(event.getGuild()).player.destroy();
+                    audio.closeAudioConnection();
+                    channel.sendMessageFormat(":mute:  Disconnected from voice channel **%s**.", vc.getName()).queue();
+
+                } else if (msg.contains(prefix + "play")) {
+
+                    if (msg.indexOf(prefix + "play") > 0) return;
+
+                    PlayerManager manager = PlayerManager.getInstance();
+                    GuildVoiceState senderVoice = event.getMember().getVoiceState();
+
+                    if (senderVoice == null) {
+                        channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    VoiceChannel vc = senderVoice.getChannel();
+                    if (vc == null) {
+                        channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+                    if (!vc.getMembers().contains(sender)) {
+                        channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    AudioManager audio = event.getGuild().getAudioManager();
+                    if (!audio.isConnected()) audio.openAudioConnection(vc);
+
+                    if (manager.getGuildMusicManager(event.getGuild()).player.isPaused()) {
+                        manager.getGuildMusicManager(event.getGuild()).player.setPaused(false);
+                        channel.sendMessage(":arrow_forward:  Resumed paused track.").queue();
+                        return;
+                    }
+
+                    String[] args = msg.split(" ");
+                    if (args.length == 2) {
+                        if (manager.getGuildMusicManager(event.getGuild()).player.getVolume() != 50) {
+                            manager.load(channel, args[1]);
+                        } else {
+                            manager.load(channel, args[1]);
+                            manager.getGuildMusicManager(event.getGuild()).player.setVolume(50);
+                        }
+                    }
+
+                } else if (msg.equals(prefix + "pause")) {
+
+                    PlayerManager manager = PlayerManager.getInstance();
+                    GuildVoiceState senderVoice = event.getMember().getVoiceState();
+
+                    if (senderVoice == null) {
+                        channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    VoiceChannel vc = senderVoice.getChannel();
+                    if (vc == null) {
+                        channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    AudioManager audio = event.getGuild().getAudioManager();
+                    if (!audio.isConnected()) {
+                        channel.sendMessage(":x:  Cannot pause. Bot is not connected.").queue();
+                        return;
+                    }
+                    if (!vc.getMembers().contains(sender)) {
+                        channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    manager.getGuildMusicManager(event.getGuild()).player.setPaused(true);
+                    channel.sendMessage(":pause_button:  Paused playing track.").queue();
+
+                } else if (msg.equals(prefix + "stop")) {
+
+                    PlayerManager manager = PlayerManager.getInstance();
+                    GuildVoiceState senderVoice = event.getMember().getVoiceState();
+
+                    if (senderVoice == null) {
+                        channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    VoiceChannel vc = senderVoice.getChannel();
+                    if (vc == null) {
+                        channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    AudioManager audio = event.getGuild().getAudioManager();
+                    if (!audio.isConnected()) {
+                        channel.sendMessage(":x:  Cannot stop. Bot is not connected.").queue();
+                        return;
+                    }
+                    if (!vc.getMembers().contains(sender)) {
+                        channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    manager.getGuildMusicManager(event.getGuild()).player.stopTrack();
+                    channel.sendMessage(":stop_button:  Stopped playing track.").queue();
+
+                } else if (msg.equals(prefix + "skip")) {
+
+                    PlayerManager manager = PlayerManager.getInstance();
+                    GuildVoiceState senderVoice = event.getMember().getVoiceState();
+
+                    if (senderVoice == null) {
+                        channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    VoiceChannel vc = senderVoice.getChannel();
+                    if (vc == null) {
+                        channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    AudioManager audio = event.getGuild().getAudioManager();
+                    if (!audio.isConnected()) {
+                        channel.sendMessage(":x:  Cannot skip. Bot is not connected.").queue();
+                        return;
+                    }
+                    if (!vc.getMembers().contains(sender)) {
+                        channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    manager.getGuildMusicManager(event.getGuild()).scheduler.nextTrack();
+                    channel.sendMessage(":fast_forward:  Skipped to next track in queue.").queue();
+
+                } else if (msg.contains(prefix + "volume")) {
+
+                    if (msg.indexOf(prefix + "volume") > 0) return;
+
+                    PlayerManager manager = PlayerManager.getInstance();
+                    GuildVoiceState senderVoice = event.getMember().getVoiceState();
+
+                    if (senderVoice == null) {
+                        channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    VoiceChannel vc = senderVoice.getChannel();
+                    if (vc == null) {
+                        channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    AudioManager audio = event.getGuild().getAudioManager();
+                    if (!audio.isConnected()) {
+                        channel.sendMessage(":x:  Cannot adjust volume. Bot is not connected.").queue();
+                        return;
+                    }
+                    if (!vc.getMembers().contains(sender)) {
+                        channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
+                        return;
+                    }
+
+                    String[] args = msg.split(" ");
+                    if (args.length == 2) {
+                        int volume = Integer.parseInt(args[1]);
+                        if (volume > 100 && (!sender.hasPermission(Permission.ADMINISTRATOR) || !sender.getId().equals("191640313016745984"))) volume = 100;
+                        manager.getGuildMusicManager(event.getGuild()).player.setVolume(volume);
+                        channel.sendMessageFormat(":sound:  Set volume to **%d**.", volume).queue();
+                    }
+
                 }
 
-            } else if (msg.equals(prefix + "pause")) {
+            } else {
 
-                PlayerManager manager = PlayerManager.getInstance();
-                GuildVoiceState senderVoice = event.getMember().getVoiceState();
-                TextChannel channel = event.getChannel();
-
-                if (senderVoice == null) {
-                    channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                VoiceChannel vc = senderVoice.getChannel();
-                if (vc == null) {
-                    channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                AudioManager audio = event.getGuild().getAudioManager();
-                if (!audio.isConnected()) {
-                    channel.sendMessage(":x:  Cannot pause. Bot is not connected.").queue();
-                    return;
-                }
-                if (!vc.getMembers().contains(sender)) {
-                    channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                manager.getGuildMusicManager(event.getGuild()).player.setPaused(true);
-                channel.sendMessage(":pause_button:  Paused playing track.").queue();
-
-            } else if (msg.equals(prefix + "stop")) {
-
-                PlayerManager manager = PlayerManager.getInstance();
-                GuildVoiceState senderVoice = event.getMember().getVoiceState();
-                TextChannel channel = event.getChannel();
-
-                if (senderVoice == null) {
-                    channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                VoiceChannel vc = senderVoice.getChannel();
-                if (vc == null) {
-                    channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                AudioManager audio = event.getGuild().getAudioManager();
-                if (!audio.isConnected()) {
-                    channel.sendMessage(":x:  Cannot stop. Bot is not connected.").queue();
-                    return;
-                }
-                if (!vc.getMembers().contains(sender)) {
-                    channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                manager.getGuildMusicManager(event.getGuild()).player.stopTrack();
-                channel.sendMessage(":stop_button:  Stopped playing track.").queue();
-
-            } else if (msg.equals(prefix + "skip")) {
-
-                PlayerManager manager = PlayerManager.getInstance();
-                GuildVoiceState senderVoice = event.getMember().getVoiceState();
-                TextChannel channel = event.getChannel();
-
-                if (senderVoice == null) {
-                    channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                VoiceChannel vc = senderVoice.getChannel();
-                if (vc == null) {
-                    channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                AudioManager audio = event.getGuild().getAudioManager();
-                if (!audio.isConnected()) {
-                    channel.sendMessage(":x:  Cannot skip. Bot is not connected.").queue();
-                    return;
-                }
-                if (!vc.getMembers().contains(sender)) {
-                    channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                manager.getGuildMusicManager(event.getGuild()).scheduler.nextTrack();
-                channel.sendMessage(":fast_forward:  Skipped to next track in queue.").queue();
-
-            } else if (msg.contains(prefix + "volume")) {
-
-                if (msg.indexOf(prefix + "volume") > 0) return;
-
-                PlayerManager manager = PlayerManager.getInstance();
-                GuildVoiceState senderVoice = event.getMember().getVoiceState();
-                TextChannel channel = event.getChannel();
-
-                if (senderVoice == null) {
-                    channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                VoiceChannel vc = senderVoice.getChannel();
-                if (vc == null) {
-                    channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                AudioManager audio = event.getGuild().getAudioManager();
-                if (!audio.isConnected()) {
-                    channel.sendMessage(":x:  Cannot adjust volume. Bot is not connected.").queue();
-                    return;
-                }
-                if (!vc.getMembers().contains(sender)) {
-                    channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
-                    return;
-                }
-
-                String[] args = msg.split(" ");
-                if (args.length == 2) {
-                    int volume = Integer.parseInt(args[1]);
-                    if (volume > 100 && (!sender.hasPermission(Permission.ADMINISTRATOR) || !sender.getId().equals("191640313016745984"))) volume = 100;
-                    manager.getGuildMusicManager(event.getGuild()).player.setVolume(volume);
-                    channel.sendMessageFormat(":sound:  Set volume to **%d**.", volume).queue();
-                }
+                channel.sendMessage(":x:  You don't have permission to use that! You need the `DJ` role or the `Administrator` permission node.").queue();
 
             }
 
