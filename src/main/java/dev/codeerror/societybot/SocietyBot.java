@@ -450,10 +450,6 @@ public class SocietyBot implements EventListener {
 
                 }
 
-            } else {
-
-                channel.sendMessage(":x:  You don't have permission to use that! You need the `DJ` role or the `Administrator` permission node.").queue();
-
             }
 
         }
