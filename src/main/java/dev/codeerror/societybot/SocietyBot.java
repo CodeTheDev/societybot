@@ -137,6 +137,10 @@ public class SocietyBot implements EventListener {
 
             System.out.println(consolePrefix + "Joined guild \"" + event.getGuild().getName() + "\" (" + event.getGuild().getId() + ")");
 
+            if (event.getGuild().getRolesByName("DJ", false).isEmpty()) {
+                event.getGuild().createRole().setName("DJ").setHoisted(false).setMentionable(false).complete();
+            }
+
         } else if (e instanceof GuildLeaveEvent event) {
 
             System.out.println(consolePrefix + "Left guild: \"" + event.getGuild().getName() + "\" (" + event.getGuild().getId() + ")");
