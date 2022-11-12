@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation("net.dv8tion:JDA:4.4.0_352")
     implementation("com.sedmelluq:lavaplayer:1.3.78")
-    implementation("org.slf4j:slf4j-simple:1.7.36")
+    implementation("org.slf4j:slf4j-simple:2.0.3")
 }
 
 idea {
