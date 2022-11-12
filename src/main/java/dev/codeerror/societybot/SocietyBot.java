@@ -7,8 +7,11 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -23,6 +26,7 @@ import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class SocietyBot implements EventListener {
@@ -33,7 +37,7 @@ public class SocietyBot implements EventListener {
     public static void main(String[] args) throws LoginException, InterruptedException {
 
         System.out.println("=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=");
-        System.out.println("  SocietyBot v1.1 - Console Logging Interface\n");
+        System.out.println("  SocietyBot v1.2 - Console Logging Interface\n");
         System.out.println("          Created By: CodeError#0001\n");
         System.out.println("            \"we live in a society.\"");
         System.out.println("=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=\n");
@@ -125,18 +129,29 @@ public class SocietyBot implements EventListener {
 
         if (e instanceof ReadyEvent) {
 
+            // Create Global Slash Commands.
+            e.getJDA().updateCommands()
+                    .addCommands(new CommandData("society", "Root command for SocietyBot.")
+                            .addSubcommands(new SubcommandData("about", "Replies with information about SocietyBot in an embed."))
+                            .addSubcommands(new SubcommandData("info", "Replies with information about SocietyBot in an embed."))
+            ).queue();
+            e.getJDA().updateCommands().queue();
+
+            // Create DJ role if it doesn't exist.
             for (Guild guild : e.getJDA().getGuilds()) {
                 if (guild.getRolesByName("DJ", false).isEmpty()) {
                     guild.createRole().setName("DJ").setHoisted(false).setMentionable(false).complete();
                 }
             }
 
+            // Print logged in message.
             System.out.println(consolePrefix + "Logged in as " + e.getJDA().getSelfUser().getAsTag());
 
         } else if (e instanceof GuildJoinEvent event) {
 
             System.out.println(consolePrefix + "Joined guild \"" + event.getGuild().getName() + "\" (" + event.getGuild().getId() + ")");
 
+            // Create DJ role if it doesn't exist.
             if (event.getGuild().getRolesByName("DJ", false).isEmpty()) {
                 event.getGuild().createRole().setName("DJ").setHoisted(false).setMentionable(false).complete();
             }
@@ -169,7 +184,7 @@ public class SocietyBot implements EventListener {
                     embed.setThumbnail(selfUser.getEffectiveAvatarUrl());
                     embed.setTitle("SocietyBot  -  About");
 
-                    embed.appendDescription("**Version:**  `1.1`\n");
+                    embed.appendDescription("**Version:**  `1.2`\n");
                     embed.appendDescription("**Author:**  <@191640313016745984>  (`CodeError#0001`)\n\n");
 
                     embed.appendDescription("Currently logged in as **" + selfUser.getAsTag() + "**.\n\n");
@@ -451,6 +466,70 @@ public class SocietyBot implements EventListener {
                         manager.getGuildMusicManager(event.getGuild()).player.setVolume(volume);
                         channel.sendMessageFormat(":sound:  Set volume to **%d**.", volume).queue();
                     }
+
+                }
+
+            }
+
+        } else if (e instanceof SlashCommandEvent event) {
+
+            if (event.getName().equals("society")) {
+
+                if (Objects.equals(event.getSubcommandName(), "about") || Objects.equals(event.getSubcommandName(), "info")) {
+
+                    event.deferReply().queue(); // Acknowledge command.
+
+                    OffsetDateTime timestamp = event.getTimeCreated();
+                    EmbedBuilder embed = new EmbedBuilder();
+                    User selfUser = event.getJDA().getSelfUser();
+
+                    embed.setColor(new Color(255, 51, 51));
+                    embed.setFooter("SocietyBot");
+                    embed.setTimestamp(timestamp);
+                    embed.setThumbnail(selfUser.getEffectiveAvatarUrl());
+                    embed.setTitle("SocietyBot  -  About");
+
+                    embed.appendDescription("**Version:**  `1.2`\n");
+                    embed.appendDescription("**Author:**  <@191640313016745984>  (`CodeError#0001`)\n\n");
+
+                    embed.appendDescription("Currently logged in as **" + selfUser.getAsTag() + "**.\n\n");
+
+                    long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
+                    long seconds = uptimeMillis / 1000;
+                    long minutes = seconds / 60;
+                    long hours = minutes / 60;
+                    long days = hours / 24;
+                    String uptime = days + "d " + hours % 24 + "h " + minutes % 60 + "m " + seconds % 60 + "s";
+                    embed.appendDescription("**Uptime:**  `" + uptime + "`\n");
+                    embed.appendDescription("**Latency:**  `" + event.getJDA().getGatewayPing() + "ms`\n\n");
+
+                    embed.appendDescription("**User Mention:**  <@" + selfUser.getId() + ">\n");
+                    embed.appendDescription("**User ID:**  `" + selfUser.getId() + "`\n");
+                    embed.appendDescription("**User Created:**  <t:" + selfUser.getTimeCreated().toEpochSecond() + ":R>\n\n");
+
+                    if (event.getGuild() != null) {
+
+                        Member selfMember = event.getGuild().getSelfMember();
+
+                        embed.appendDescription("**Server Join Date:**  <t:" + selfMember.getTimeJoined().toEpochSecond() + ":R>\n");
+                        embed.appendDescription("**Assigned Roles:**  ");
+                        if (!selfMember.getRoles().isEmpty()) {
+                            for (Role role : selfMember.getRoles()) {
+                                embed.appendDescription("<@&" + role.getId() + ">  ");
+                            }
+                        } else {
+                            embed.appendDescription("`None`");
+                        }
+                        embed.appendDescription("\n");
+
+                    }
+
+                    event.replyEmbeds(embed.build()).addActionRows(
+                            ActionRow.of(
+                                    Button.link("https://discord.com/api/oauth2/authorize?client_id=919757594971738142&permissions=8&scope=bot", "Invite"),
+                                    Button.link("https://github.com/CodeTheDev/societybot", "View Source Code")
+                            )
+                    ).queue();
 
                 }
 
