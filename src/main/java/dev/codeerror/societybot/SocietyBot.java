@@ -476,8 +476,6 @@ public class SocietyBot implements EventListener {
 
                 if (Objects.equals(event.getSubcommandName(), "about") || Objects.equals(event.getSubcommandName(), "info")) {
 
-                    event.deferReply().queue(); // Acknowledge command.
-
                     OffsetDateTime timestamp = event.getTimeCreated();
                     EmbedBuilder embed = new EmbedBuilder();
                     User selfUser = event.getJDA().getSelfUser();
