@@ -135,7 +135,6 @@ public class SocietyBot implements EventListener {
                             .addSubcommands(new SubcommandData("about", "Replies with information about SocietyBot in an embed."))
                             .addSubcommands(new SubcommandData("info", "Replies with information about SocietyBot in an embed."))
             ).queue();
-            e.getJDA().updateCommands().queue();
 
             // Create DJ role if it doesn't exist.
             for (Guild guild : e.getJDA().getGuilds()) {
