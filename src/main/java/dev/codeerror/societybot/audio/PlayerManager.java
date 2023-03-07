@@ -8,7 +8,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class PlayerManager {
         return musicManager;
     }
 
-    public void load(@NotNull TextChannel channel, String url) {
+    public void load(@NotNull GuildMessageChannel channel, String url) {
         GuildMusicManager musicManager = this.getGuildMusicManager(channel.getGuild());
         this.playerManager.loadItemOrdered(musicManager, url, new AudioLoadResultHandler() {
             @Override

@@ -3,25 +3,29 @@ package dev.codeerror.societybot;
 import dev.codeerror.societybot.audio.PlayerManager;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
+import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 import org.jetbrains.annotations.NotNull;
 
-import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.time.OffsetDateTime;
@@ -34,10 +38,9 @@ public class SocietyBot implements EventListener {
     private static final String consolePrefix = "[SocietyBot] ";
     private static final char prefix = '>';
 
-    public static void main(String[] args) throws LoginException, InterruptedException {
-
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=");
-        System.out.println("  SocietyBot v1.2 - Console Logging Interface\n");
+        System.out.println("  SocietyBot v1.2.1 - Console Logging Interface\n");
         System.out.println("          Created By: CodeError#0001\n");
         System.out.println("            \"we live in a society.\"");
         System.out.println("=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=\n");
@@ -48,7 +51,6 @@ public class SocietyBot implements EventListener {
         String activity = "society devolve.";
 
         if (args.length >= 1) {
-
             token = args[0];
 
             if (args.length > 1) {
@@ -62,8 +64,8 @@ public class SocietyBot implements EventListener {
             }
 
             if (args.length > 2) {
-                if (args[2].equalsIgnoreCase("default")) {
-                    activityType = Activity.ActivityType.DEFAULT;
+                if (args[2].equalsIgnoreCase("playing")) {
+                    activityType = Activity.ActivityType.PLAYING;
                 } else if (args[2].equalsIgnoreCase("streaming")) {
                     activityType = Activity.ActivityType.STREAMING;
                 } else if (args[2].equalsIgnoreCase("listening")) {
@@ -78,9 +80,7 @@ public class SocietyBot implements EventListener {
                 }
                 activity = new String(activityBuilder).trim();
             }
-
         } else {
-
             System.out.print(consolePrefix + "Please enter bot access token: ");
 
             Scanner input = new Scanner(System.in);
@@ -88,7 +88,6 @@ public class SocietyBot implements EventListener {
             input.close();
 
             System.out.println();
-
         }
 
         System.out.println(consolePrefix + "OnlineStatus: " + status);
@@ -98,13 +97,13 @@ public class SocietyBot implements EventListener {
         JDABuilder.createLight(token)
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
-                        GatewayIntent.GUILD_BANS,
+                        GatewayIntent.GUILD_MODERATION,
                         GatewayIntent.GUILD_VOICE_STATES,
                         GatewayIntent.GUILD_MESSAGES,
-                        GatewayIntent.GUILD_MESSAGE_REACTIONS
+                        GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                        GatewayIntent.MESSAGE_CONTENT
                 )
                 .disableIntents(
-                        GatewayIntent.GUILD_EMOJIS,
                         GatewayIntent.GUILD_WEBHOOKS,
                         GatewayIntent.GUILD_INVITES,
                         GatewayIntent.GUILD_PRESENCES,
@@ -121,17 +120,14 @@ public class SocietyBot implements EventListener {
                 .setActivity(Activity.of(activityType, activity, "https://twitch.tv/codeerrortv"))
                 .addEventListeners(new SocietyBot())
                 .build().awaitReady();
-
     }
 
     @Override
     public void onEvent(@NotNull GenericEvent e) {
-
         if (e instanceof ReadyEvent) {
-
             // Create Global Slash Commands.
             e.getJDA().updateCommands()
-                    .addCommands(new CommandData("society", "Root command for SocietyBot.")
+                    .addCommands(new CommandDataImpl("society", "Root command for SocietyBot.")
                             .addSubcommands(new SubcommandData("about", "Replies with information about SocietyBot in an embed."))
                             .addSubcommands(new SubcommandData("info", "Replies with information about SocietyBot in an embed."))
             ).queue();
@@ -145,33 +141,25 @@ public class SocietyBot implements EventListener {
 
             // Print logged in message.
             System.out.println(consolePrefix + "Logged in as " + e.getJDA().getSelfUser().getAsTag());
-
         } else if (e instanceof GuildJoinEvent event) {
-
             System.out.println(consolePrefix + "Joined guild \"" + event.getGuild().getName() + "\" (" + event.getGuild().getId() + ")");
 
             // Create DJ role if it doesn't exist.
             if (event.getGuild().getRolesByName("DJ", false).isEmpty()) {
                 event.getGuild().createRole().setName("DJ").setHoisted(false).setMentionable(false).complete();
             }
-
         } else if (e instanceof GuildLeaveEvent event) {
-
             System.out.println(consolePrefix + "Left guild: \"" + event.getGuild().getName() + "\" (" + event.getGuild().getId() + ")");
-
-        } else if (e instanceof GuildMessageReceivedEvent event) {
-
+        } else if (e instanceof MessageReceivedEvent event) {
             if (event.getAuthor().isBot() || event.getMember() == null) return;
 
             String msg = event.getMessage().getContentRaw();
             Member sender = event.getMember();
-            TextChannel channel = event.getChannel();
+            GuildMessageChannel channel = event.getChannel().asGuildMessageChannel();
             Role djRole = event.getGuild().getRolesByName("DJ", false).get(0);
 
             if (sender.getRoles().contains(djRole) || sender.hasPermission(Permission.ADMINISTRATOR) || sender.getId().equals("191640313016745984")) {
-
                 if (msg.equals(prefix + "about") || (msg.equals(prefix + "info"))) {
-
                     OffsetDateTime timestamp = event.getMessage().getTimeCreated();
                     EmbedBuilder embed = new EmbedBuilder();
                     User selfUser = event.getJDA().getSelfUser();
@@ -183,7 +171,7 @@ public class SocietyBot implements EventListener {
                     embed.setThumbnail(selfUser.getEffectiveAvatarUrl());
                     embed.setTitle("SocietyBot  -  About");
 
-                    embed.appendDescription("**Version:**  `1.2`\n");
+                    embed.appendDescription("**Version:**  `1.2.1`\n");
                     embed.appendDescription("**Author:**  <@191640313016745984>  (`CodeError#0001`)\n\n");
 
                     embed.appendDescription("Currently logged in as **" + selfUser.getAsTag() + "**.\n\n");
@@ -214,13 +202,11 @@ public class SocietyBot implements EventListener {
 
                     channel.sendMessageEmbeds(embed.build()).queue(message -> message.editMessageComponents(
                             ActionRow.of(
-                                    Button.link("https://discord.com/api/oauth2/authorize?client_id=919757594971738142&permissions=8&scope=bot", "Invite"),
-                                    Button.link("https://github.com/CodeTheDev/societybot", "View Source Code")
+                                    new ButtonImpl(null, "Invite", ButtonStyle.LINK, "https://discord.com/api/oauth2/authorize?client_id=919757594971738142&permissions=8&scope=bot", false, null),
+                                    new ButtonImpl(null, "View Source Code", ButtonStyle.LINK, "https://github.com/CodeTheDev/societybot", false, null)
                             )
                     ).queue());
-
                 } else if (msg.contains(prefix + "leaveguild") && sender.getId().equals("191640313016745984")) {
-
                     if (msg.indexOf(prefix + "leaveguild") > 0) return;
 
                     String[] args = msg.split(" ");
@@ -235,9 +221,7 @@ public class SocietyBot implements EventListener {
                         targetGuild.leave().queue();
                         channel.sendMessage(":white_check_mark:  Left target guild  **__" + targetGuild.getName() + "__**  (`" + targetGuild.getId() + "`) successfully!").queue();
                     }
-
                 } else if (msg.equals(prefix + "listguilds") && sender.getId().equals("191640313016745984")) {
-
                     List<Guild> guilds = event.getJDA().getGuilds();
 
                     StringBuilder responseBuilder = new StringBuilder();
@@ -247,9 +231,7 @@ public class SocietyBot implements EventListener {
                     String response = new String(responseBuilder);
 
                     channel.sendMessage(response).queue();
-
                 } else if (msg.equals(prefix + "join") || msg.equals(prefix + "connect")) {
-
                     GuildVoiceState senderVoice = event.getMember().getVoiceState();
 
                     if (senderVoice == null) {
@@ -257,11 +239,12 @@ public class SocietyBot implements EventListener {
                         return;
                     }
 
-                    VoiceChannel vc = senderVoice.getChannel();
-                    if (vc == null) {
+                    AudioChannelUnion audioChannel = senderVoice.getChannel();
+                    if (audioChannel == null || audioChannel.getType() != ChannelType.VOICE) {
                         channel.sendMessage(":x:  Cannot connect to voice channel. Sender is not in a voice channel.").queue();
                         return;
                     }
+                    VoiceChannel vc = audioChannel.asVoiceChannel();
 
                     AudioManager audio = event.getGuild().getAudioManager();
                     if (audio.isConnected()) {
@@ -271,9 +254,7 @@ public class SocietyBot implements EventListener {
 
                     audio.openAudioConnection(vc);
                     channel.sendMessageFormat(":loud_sound:  Joined voice channel **%s**.", vc.getName()).queue();
-
                 } else if (msg.equals(prefix + "disconnect") || msg.equals(prefix + "dc") || msg.equals(prefix + "leave")) {
-
                     PlayerManager manager = PlayerManager.getInstance();
                     GuildVoiceState senderVoice = event.getMember().getVoiceState();
 
@@ -282,11 +263,12 @@ public class SocietyBot implements EventListener {
                         return;
                     }
 
-                    VoiceChannel vc = senderVoice.getChannel();
-                    if (vc == null) {
+                    AudioChannelUnion audioChannel = senderVoice.getChannel();
+                    if (audioChannel == null || audioChannel.getType() != ChannelType.VOICE) {
                         channel.sendMessage(":x:  Cannot disconnect bot. Sender is not in my voice channel.").queue();
                         return;
                     }
+                    VoiceChannel vc = audioChannel.asVoiceChannel();
 
                     AudioManager audio = event.getGuild().getAudioManager();
                     if (!audio.isConnected()) {
@@ -301,9 +283,7 @@ public class SocietyBot implements EventListener {
                     manager.getGuildMusicManager(event.getGuild()).player.destroy();
                     audio.closeAudioConnection();
                     channel.sendMessageFormat(":mute:  Disconnected from voice channel **%s**.", vc.getName()).queue();
-
                 } else if (msg.contains(prefix + "play")) {
-
                     if (msg.indexOf(prefix + "play") > 0) return;
 
                     PlayerManager manager = PlayerManager.getInstance();
@@ -314,11 +294,12 @@ public class SocietyBot implements EventListener {
                         return;
                     }
 
-                    VoiceChannel vc = senderVoice.getChannel();
-                    if (vc == null) {
+                    AudioChannelUnion audioChannel = senderVoice.getChannel();
+                    if (audioChannel == null || audioChannel.getType() != ChannelType.VOICE) {
                         channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
                         return;
                     }
+                    VoiceChannel vc = audioChannel.asVoiceChannel();
                     if (!vc.getMembers().contains(sender)) {
                         channel.sendMessage(":x:  Cannot queue track. Sender is not in my voice channel.").queue();
                         return;
@@ -342,9 +323,7 @@ public class SocietyBot implements EventListener {
                             manager.getGuildMusicManager(event.getGuild()).player.setVolume(50);
                         }
                     }
-
                 } else if (msg.equals(prefix + "pause")) {
-
                     PlayerManager manager = PlayerManager.getInstance();
                     GuildVoiceState senderVoice = event.getMember().getVoiceState();
 
@@ -353,11 +332,12 @@ public class SocietyBot implements EventListener {
                         return;
                     }
 
-                    VoiceChannel vc = senderVoice.getChannel();
-                    if (vc == null) {
+                    AudioChannelUnion audioChannel = senderVoice.getChannel();
+                    if (audioChannel == null || audioChannel.getType() != ChannelType.VOICE) {
                         channel.sendMessage(":x:  Cannot pause. Sender is not in my voice channel.").queue();
                         return;
                     }
+                    VoiceChannel vc = audioChannel.asVoiceChannel();
 
                     AudioManager audio = event.getGuild().getAudioManager();
                     if (!audio.isConnected()) {
@@ -371,9 +351,7 @@ public class SocietyBot implements EventListener {
 
                     manager.getGuildMusicManager(event.getGuild()).player.setPaused(true);
                     channel.sendMessage(":pause_button:  Paused playing track.").queue();
-
                 } else if (msg.equals(prefix + "stop")) {
-
                     PlayerManager manager = PlayerManager.getInstance();
                     GuildVoiceState senderVoice = event.getMember().getVoiceState();
 
@@ -382,11 +360,12 @@ public class SocietyBot implements EventListener {
                         return;
                     }
 
-                    VoiceChannel vc = senderVoice.getChannel();
-                    if (vc == null) {
+                    AudioChannelUnion audioChannel = senderVoice.getChannel();
+                    if (audioChannel == null || audioChannel.getType() != ChannelType.VOICE) {
                         channel.sendMessage(":x:  Cannot stop. Sender is not in my voice channel.").queue();
                         return;
                     }
+                    VoiceChannel vc = audioChannel.asVoiceChannel();
 
                     AudioManager audio = event.getGuild().getAudioManager();
                     if (!audio.isConnected()) {
@@ -400,9 +379,7 @@ public class SocietyBot implements EventListener {
 
                     manager.getGuildMusicManager(event.getGuild()).player.stopTrack();
                     channel.sendMessage(":stop_button:  Stopped playing track.").queue();
-
                 } else if (msg.equals(prefix + "skip")) {
-
                     PlayerManager manager = PlayerManager.getInstance();
                     GuildVoiceState senderVoice = event.getMember().getVoiceState();
 
@@ -411,11 +388,12 @@ public class SocietyBot implements EventListener {
                         return;
                     }
 
-                    VoiceChannel vc = senderVoice.getChannel();
-                    if (vc == null) {
+                    AudioChannelUnion audioChannel = senderVoice.getChannel();
+                    if (audioChannel == null || audioChannel.getType() != ChannelType.VOICE) {
                         channel.sendMessage(":x:  Cannot skip. Sender is not in my voice channel.").queue();
                         return;
                     }
+                    VoiceChannel vc = audioChannel.asVoiceChannel();
 
                     AudioManager audio = event.getGuild().getAudioManager();
                     if (!audio.isConnected()) {
@@ -429,9 +407,7 @@ public class SocietyBot implements EventListener {
 
                     manager.getGuildMusicManager(event.getGuild()).scheduler.nextTrack();
                     channel.sendMessage(":fast_forward:  Skipped to next track in queue.").queue();
-
                 } else if (msg.contains(prefix + "volume")) {
-
                     if (msg.indexOf(prefix + "volume") > 0) return;
 
                     PlayerManager manager = PlayerManager.getInstance();
@@ -442,11 +418,12 @@ public class SocietyBot implements EventListener {
                         return;
                     }
 
-                    VoiceChannel vc = senderVoice.getChannel();
-                    if (vc == null) {
+                    AudioChannelUnion audioChannel = senderVoice.getChannel();
+                    if (audioChannel == null || audioChannel.getType() != ChannelType.VOICE) {
                         channel.sendMessage(":x:  Cannot adjust volume. Sender is not in my voice channel.").queue();
                         return;
                     }
+                    VoiceChannel vc = audioChannel.asVoiceChannel();
 
                     AudioManager audio = event.getGuild().getAudioManager();
                     if (!audio.isConnected()) {
@@ -465,17 +442,11 @@ public class SocietyBot implements EventListener {
                         manager.getGuildMusicManager(event.getGuild()).player.setVolume(volume);
                         channel.sendMessageFormat(":sound:  Set volume to **%d**.", volume).queue();
                     }
-
                 }
-
             }
-
-        } else if (e instanceof SlashCommandEvent event) {
-
+        } else if (e instanceof SlashCommandInteractionEvent event) {
             if (event.getName().equals("society")) {
-
                 if (Objects.equals(event.getSubcommandName(), "about") || Objects.equals(event.getSubcommandName(), "info")) {
-
                     OffsetDateTime timestamp = event.getTimeCreated();
                     EmbedBuilder embed = new EmbedBuilder();
                     User selfUser = event.getJDA().getSelfUser();
@@ -486,7 +457,7 @@ public class SocietyBot implements EventListener {
                     embed.setThumbnail(selfUser.getEffectiveAvatarUrl());
                     embed.setTitle("SocietyBot  -  About");
 
-                    embed.appendDescription("**Version:**  `1.2`\n");
+                    embed.appendDescription("**Version:**  `1.2.1`\n");
                     embed.appendDescription("**Author:**  <@191640313016745984>  (`CodeError#0001`)\n\n");
 
                     embed.appendDescription("Currently logged in as **" + selfUser.getAsTag() + "**.\n\n");
@@ -521,19 +492,13 @@ public class SocietyBot implements EventListener {
 
                     }
 
-                    event.replyEmbeds(embed.build()).addActionRows(
-                            ActionRow.of(
-                                    Button.link("https://discord.com/api/oauth2/authorize?client_id=919757594971738142&permissions=8&scope=bot", "Invite"),
-                                    Button.link("https://github.com/CodeTheDev/societybot", "View Source Code")
-                            )
+                    event.replyEmbeds(embed.build()).addActionRow(
+                            new ButtonImpl(null, "Invite", ButtonStyle.LINK, "https://discord.com/api/oauth2/authorize?client_id=919757594971738142&permissions=8&scope=bot", false, null),
+                            new ButtonImpl(null, "View Source Code", ButtonStyle.LINK, "https://github.com/CodeTheDev/societybot", false, null)
                     ).queue();
-
                 }
-
             }
-
         }
-
     }
 
 }
