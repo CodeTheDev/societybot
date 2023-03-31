@@ -17,9 +17,10 @@ repositories {
 }
 
 dependencies {
-    implementation("net.dv8tion:JDA:5.0.0-beta.5")
+    implementation("net.dv8tion:JDA:5.0.0-beta.6")
     implementation("com.sedmelluq:lavaplayer:1.3.78")
-    implementation("org.slf4j:slf4j-simple:2.0.3")
+    implementation("org.slf4j:slf4j-simple:2.0.5")
+    implementation("com.theokanning.openai-gpt3-java:service:0.11.1")
 }
 
 idea {
